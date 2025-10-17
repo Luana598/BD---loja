@@ -6,7 +6,7 @@ INSERT INTO tb_funcionario(
     );
     
     
-     INSERT INTO tb_funcionario (
+	INSERT INTO tb_funcionario (
     nome, cpf, data_nascimento, telefone, email, data_admissao, data_demissao
 ) 
 VALUES
@@ -229,14 +229,55 @@ VALUES
 
 select * from tb_funcionario_cargo;
 delete from tb_funcionario;
+select * from tb_funcionario;
 
 -- listar a tabela funcionario_cargos exibindo o nome do cargo
 SELECT tb_funcionario_cargo.id, tb_funcionario_cargo.id_cargo, tb_cargo.nome 
 FROM tb_funcionario_cargo, tb_cargo
 WHERE tb_funcionario_cargo.id_cargo = tb_cargo.id_cargo;
 
+-- listar a tabela funcionario_cargos exibindo o nome do funcionário
+SELECT tb_funcionario_cargo.id,
+ tb_funcionario_cargo.id_funcionario,
+ tb_funcionario.nome,
+ tb_funcionario.email
+FROM tb_funcionario_cargo, tb_funcionario
+WHERE tb_funcionario_cargo.id_funcionario = tb_funcionario.id_funcionario
+ORDER BY tb_funcionario.nome ASC;
+
 SELECT * FROM tb_cargo;
 
+-- listar a tabela funcionario_cargo exibindo o nome do funcionario 
+-- e o cargo atual
+SELECT
+ fc.id,
+ fc.id_funcionario,
+ fc.id_cargo,
+ f.nome as funcionario,
+ c.nome as cargo,
+ f.email
+FROM tb_funcionario_cargo as fc, tb_funcionario as f, tb_cargo as c
+WHERE fc.id_funcionario = f.id_funcionario
+AND  fc.id_cargo = c.id_cargo
+ORDER BY c.nome ASC;
 
+ SELECT * FROM tb_funcionario_cargo WHERE id = 5 OR id = 2;
+ SELECT * FROM tb_funcionario;
+ 
+ SELECT * FROM tb_funcionario_cargo ORDER BY id_funcionario;
+
+DELETE FROM tb_funcionario_cargo WHERE id_funcionario >= 36;
+DELETE FROM tb_funcionario WHERE id_funcionario >= 36;
+
+SELECT * FROM tb_funcionario_cargo WHERE id_cargo = 5;
+
+-- somando o valor pago para os funcionários que ocupam o cargo de id 2
+SELECT SUM(salario_atual) as gastoComAnalistas 
+FROM tb_funcionario_cargo
+WHERE id_cargo = 2;
+
+SELECT SUM(salario_atual) as gastoComTecnicos 
+FROM tb_funcionario_cargo
+WHERE id_cargo = 5;
 
 

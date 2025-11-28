@@ -442,7 +442,87 @@ on p.id_funcionario = f.id_funcionario
 where p.id_funcionario is null;
 
 -- --------- usando ## LEFT JOIN ## para listar produtos que nunca foram vendidos  ------------
-select pr.id_produto, pr.produto
-from tb_produto pr LEFT JOIN tb_itens i
-on i.id_produto = pr.id_produto
+select p.id_produto, p.nome
+from tb_produto p LEFT JOIN tb_itens i
+on i.id_produto = p.id_produto
 where i.id_produto is null;
+
+-- ------------------- 28/11/2025 - PROCEDURES ------------------------------------------------
+
+-- usando uma procedure para criar um funcionário 
+
+DELIMITER $$
+CREATE PROCEDURE ListarFuncionarios()
+BEGIN
+	SELECT id_funcionario, nome, cpf, email
+    FROM tb_funcionario
+    ORDER BY nome ASC;
+END $$
+DELIMITER ;
+
+CALL ListarFuncionarios();
+
+-- usando uma procedure para excluir um produto pelo ID
+
+DELIMITER $$
+CREATE PROCEDURE ExcluirProduto( IN p_id INT )
+BEGIN 
+	DECLARE id_existe INT;
+    
+    -- buscar produto informado com count
+    SELECT COUNT(id_produto) INTO id_existe
+    FROM tb_produto
+    WHERE id_produto = p_id;
+    
+    -- lógica condicional para determinar se executa a exclusão
+    IF id_existe > 0  THEN 
+		DELETE FROM tb_produto WHERE id_produto = p_id;
+	ELSE 
+		SELECT CONCAT("o produto de id ", p_id, " não existe!") Mensagem; -- CONCAT = concatenação
+	END IF;
+END $$
+DELIMITER ;
+select * from tb_produto;
+
+CALL ExcluirProduto(120); -- chamando a procedure e passando o id do produto como parâmetro
+
+drop procedure ExcluirProduto;
+
+-- -------------- criar uma procedure responsável por promover o funcionário --------------------------------
+
+DELIMITER $$
+CREATE PROCEDURE PromoverFuncionario(IN f_id INT, c_id INT, salario decimal(11,2), fi_id INT)
+BEGIN
+-- validando existência dos parâmetros
+DECLARE funcionario_existe INT;
+
+    -- verificando se o funcionário existe
+    SELECT COUNT(id_funcionario) INTO funcionario_existe
+    FROM tb_funcionario
+    WHERE id_funcionario = f_id;
+    
+    --  -- verificando se o funcionário existe
+    
+    -- lógica para atualizar fim do ultimo cargo e atribuir um novo cargo 
+    IF funcionario_existe > 0  THEN 
+    -- atualiza o cargo atual, se houver 
+		UPDATE tb_funcionario_cargo SET data_fim = current_date WHERE id_funcionario = f_id AND data_fim IS NULL;
+        INSERT INTO tb_funcionario_cargo (data_inicio, salario_atual, id_filial, id_cargo, id_funcionario)
+        VALUES (current_date(), salario, fi_id, c_id, f_id);
+	ELSE 
+		SELECT CONCAT("o funcionário de id ", f_id, " não existe!") Mensagem; 
+	END IF;
+END $$
+DELIMITER ;
+
+CALL PromoverFuncionario(28, 7, 6200.00, 1);
+
+desc tb_cargo;
+ 
+select * from  tb_cargo;
+
+select * from  tb_filial;
+
+select * from tb_funcionario_cargo;
+
+select * from tb_funcionario;
